@@ -1,3 +1,6 @@
+<?php
+require("base.php");
+    ?>
 <!DOCTYPE html>
 <head>
     <meta charset="utf-8">
@@ -13,25 +16,34 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link active" href="viewlist.php">View List<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link active" href="#">View List<span class="sr-only">(current)</span></a>
             <a class="nav-item nav-link" href="index.html">Add To Do</a>
         </div>
     </div>
 </nav>
 <div class="container-fluid">
-    <form action ="processtodo.php" method="post">
-        <div class="form-group row required">
-            <label class="col-sm-2 col-form-label required" for="todo">Enter a to do</label>
-            <div class="col-sm-5">
-                <input type="text" class="form-control" name="todo" required>
-            </div>
-            <div class="col-sm-5">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </div>
+    <?php
+    @$fp = fopen("$document_root/list/list.txt", 'rb');
+    flock($fp, LOCK_SH); //lock file for reading
 
-    </form>
-</div>
+    if (!$fp) {
+        echo "<p><strong>Something went wrong. Please check back later.<br /></strong></p>";
+        exit;
+    }
+    echo "<ul>";
 
-</body>
-</html>
+    //feof tests for end of file, while NOT end of file
+    while (!feof($fp)) {
+        $list = fgets($fp);
+        if ($list==''){
+            echo "</ul>";
+            echo "end of list";
+        } else {
+            echo "<li>" . htmlspecialchars($list) . "<button type=\"edit\" class=\"btn btn-primary btn-sm\">Edit</button></li>";
+        }
+    }
+
+    flock($fp, LOCK_UN);
+    fclose($fp);
+?>
+
